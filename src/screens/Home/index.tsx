@@ -8,7 +8,7 @@ import {
   View,
   ActivityIndicator,
 } from 'react-native';
-import React, {useRef, useLayoutEffect, useState} from 'react';
+import React, {useRef, useLayoutEffect, useState, useEffect} from 'react';
 import Geolocation from 'react-native-geolocation-service';
 import {Header, NavigationType} from '../../components/Header';
 import {
@@ -40,6 +40,10 @@ const Home = (props: Props) => {
       () => {},
     );
   }, [navigation]);
+
+  useEffect(()=>{
+    hasLocationPermission()
+  },[])
 
   const openModal = async () => {
     const cameraGranted = await requestCameraPermission();
@@ -110,6 +114,8 @@ const Home = (props: Props) => {
   const handleCameraPress = () => {
     PickImage.getCamera(false, image => {
       getLocation(image);
+    }).catch(e=>{
+      console.log('ERROR===>',e)
     });
   };
 

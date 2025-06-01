@@ -1,4 +1,4 @@
-import React, {useEffect, useLayoutEffect, useState} from 'react';
+import React, { useEffect, useLayoutEffect, useState } from 'react';
 import {
   SafeAreaView,
   StyleSheet,
@@ -6,9 +6,10 @@ import {
   Image,
   ActivityIndicator,
 } from 'react-native';
-import MapViewRN, {Marker} from 'react-native-maps';
-import {Header, NavigationType} from '../../components/Header';
-import {colors, strings, vw} from '../../constants';
+import MapViewRN, { Marker } from 'react-native-maps';
+import { Header, NavigationType } from '../../components/Header';
+import { colors, strings, vw } from '../../constants';
+import firestore from '@react-native-firebase/firestore';
 
 interface Props {
   navigation: NavigationType;
@@ -39,20 +40,35 @@ const photos = [
 ];
 
 const MapView = (props: Props) => {
-  const {navigation} = props;
+  const { navigation } = props;
   const [loading, setLoading] = useState(true);
+  const [geoData, setGeoData] = useState<any[]>([]);
+
 
   useLayoutEffect(() => {
-    Header.setNavigation(navigation, strings.map_view, () => {});
+    Header.setNavigation(navigation, strings.map_view, () => { });
     navigation.BackButtonPress = () => {
       navigation.goBack();
     };
   }, [navigation]);
 
   useEffect(() => {
-    const timer = setTimeout(() => setLoading(false), 2000); // 2 second loader
-    return () => clearTimeout(timer);
-  }, []);
+    const subscriber = firestore()
+      .collection('geoPhoto')
+      .onSnapshot(querySnapshot => {
+        const geoPhotoData: any = [];
+        querySnapshot.forEach(documentSnapshot => {
+          geoPhotoData.push({
+            ...documentSnapshot.data(),
+            id: documentSnapshot.id,
+          });
+        });
+        setGeoData(geoPhotoData);
+        setLoading(false);
+      });
+
+    return () => subscriber();
+  }, [])
 
   if (loading) {
     return (
@@ -67,22 +83,24 @@ const MapView = (props: Props) => {
       <MapViewRN
         style={styles.map}
         initialRegion={{
-          latitude: 37.78825,
-          longitude: -122.4324,
+          latitude: geoData?.[0]?.latitude ?? 37.78825,
+          longitude: geoData?.[0]?.longitude ?? -122.4324,
           latitudeDelta: 0.01,
           longitudeDelta: 0.01,
         }}>
-        {photos.map(photo => (
-          <Marker
-            key={photo.id}
-            coordinate={{latitude: photo.latitude, longitude: photo.longitude}}>
-            <Image
-              source={{uri: photo.photoUrl}}
-              style={styles.markerImage}
-              resizeMode="cover"
-            />
-          </Marker>
-        ))}
+        {geoData.map(photo => {
+          return (
+            <Marker
+              key={photo.id}
+              coordinate={{ latitude: photo.latitude, longitude: photo.longitude }} >
+              <Image
+                source={{ uri: photo.image_url }}
+                style={styles.markerImage}
+                resizeMode="cover"
+              />
+            </Marker>
+          )
+        })}
       </MapViewRN>
     </SafeAreaView>
   );

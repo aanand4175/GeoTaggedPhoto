@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "575178426368",
+    "project_id": "geotagged-1cfb0",
+    "storage_bucket": "geotagged-1cfb0.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:575178426368:android:f8b3d636178e6189dcf0e5",
+        "android_client_info": {
+          "package_name": "com.geotaggedphoto"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBsSVoH2vz2aJHul8wzrZ6oEWj1mY8s4hg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
